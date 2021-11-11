@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -35,7 +36,11 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $newItem = new Item();
+        $newItem->name = $request->item["name"];
+        $newItem->save();
+
+        return $newItem;
     }
 
     /**
@@ -65,21 +70,36 @@ class ItemController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return string
      */
     public function update(Request $request, $id)
     {
-        //
+        $existingItem = Item::find($id);
+        if ($existingItem)
+        {
+            $existingItem->completed    = $request->item['completed'] ? true : false;
+            $existingItem->completed_at = isset($request->item['completed_at']) ? Carbon::now() : null;
+            $existingItem->save();
+            return $existingItem;
+        }
+        return "Item not found";
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return string
      */
     public function destroy($id)
     {
-        //
+        $existingItem = Item::find($id);
+        if ($existingItem)
+        {
+            $existingItem->delete();
+            return "Item Successfully Deleted";
+        }
+        return "Item not found";
+
     }
 }
